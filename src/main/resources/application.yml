@@ -1,0 +1,7 @@
+server:
+  servlet:
+    context-path: /travel-system
+bus:
+  fee: '{"StopA_TO_StopB": 4.50,"StopB_TO_StopC": 6.25,"StopA_TO_StopC": 8.45}'
+
+salt: '@xyk$!p0'
