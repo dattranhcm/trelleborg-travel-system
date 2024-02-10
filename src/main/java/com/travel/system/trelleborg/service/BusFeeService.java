@@ -12,20 +12,20 @@ import java.util.Map;
 public class BusFeeService {
 
     @Value("#{${bus.fee}}")
-    private Map<String, BigDecimal> costs;
+    private Map<String, BigDecimal> busFees;
 
     @PostConstruct
     public void initialize() {
-        addReversedPairs(costs);
+        addReversedPairs(busFees);
     }
 
     public Map<String, BigDecimal> getBusFees() {
-        return costs;
+        return busFees;
     }
 
     public Map<String, BigDecimal> filterKeys(String stopStation) {
         Map<String, BigDecimal> filteredMap = new HashMap<>();
-        for (Map.Entry<String, BigDecimal> entry : costs.entrySet()) {
+        for (Map.Entry<String, BigDecimal> entry : busFees.entrySet()) {
             String key = entry.getKey();
             if (key.contains(stopStation)) {
                 filteredMap.put(key, entry.getValue());
