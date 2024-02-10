@@ -32,20 +32,20 @@ public class TripsService {
         List<TouchRecord> touchRecords = mapInfo(rawData);
 
         List<Trips> trips = new ArrayList<>();
-        List<Trips> unprocessableCollector = new ArrayList<>();
+        List<Trips> unprocessableTrips = new ArrayList<>();
 
-        List<TouchRecord> touchRecordFiltered = classifyAndSort(touchRecords, unprocessableCollector);
-        Map<String, List<TouchRecord>> tripDataMap = groupingTouchRecordByPAN(touchRecordFiltered);
+        List<TouchRecord> processableTouchData = filterAndSortProcessableTouchData(touchRecords, unprocessableTrips);
+        Map<String, List<TouchRecord>> touchRecordGrouping = groupingTouchRecordByPAN(processableTouchData);
 
-        for (Map.Entry<String, List<TouchRecord>> accountData : tripDataMap.entrySet()) {
-            trips.addAll(calculateCost(accountData.getValue(), unprocessableCollector));
+        for (Map.Entry<String, List<TouchRecord>> touchRecord : touchRecordGrouping.entrySet()) {
+            trips.addAll(calculateATripCost(touchRecord.getValue(), unprocessableTrips));
         }
 
         List<TripsSummary> tripsSummary = generateTripSummaries(trips);
 
         return TripProcessResult.builder()
                 .tripSummary(tripsSummary)
-                .unprocessableTrip(unprocessableCollector)
+                .unprocessableTrip(unprocessableTrips)
                 .tripData(trips)
                 .build();
     }
@@ -72,12 +72,12 @@ public class TripsService {
     }
 
     @SneakyThrows
-    private List<TouchRecord> classifyAndSort(List<TouchRecord> touchRecords, List<Trips> unprocessableTrip) {
-        List<TouchRecord> filteredList = new ArrayList<>();
+    private List<TouchRecord> filterAndSortProcessableTouchData(List<TouchRecord> touchRecords, List<Trips> unprocessableTrip) {
+        List<TouchRecord> processableTouchData = new ArrayList<>();
         for (TouchRecord record : touchRecords) {
             if (record.getDateTimeUTC() != null && record.getTouchType() != null && record.getPan() != null &&
                     !record.getDateTimeUTC().isEmpty() && !record.getTouchType().isEmpty() && !record.getPan().isEmpty()) {
-                filteredList.add(record);
+                processableTouchData.add(record);
             } else {
                 unprocessableTrip.add(Trips.builder()
                         .started(record.getDateTimeUTC())
@@ -93,8 +93,8 @@ public class TripsService {
                         .build());
             }
         }
-        sortByIdAndTime(filteredList);
-        return filteredList;
+        sortByIdAndTime(processableTouchData);
+        return processableTouchData;
     }
 
     public void sortByIdAndTime(List<TouchRecord> tripData) {
@@ -151,16 +151,16 @@ public class TripsService {
     }
 
     @SneakyThrows
-    private List<Trips> calculateCost(List<TouchRecord> filteredTripData, List<Trips> unprocessableTrip) {
+    private List<Trips> calculateATripCost(List<TouchRecord> processableTouchRecords, List<Trips> unprocessableTrip) {
         List<Trips> result = new ArrayList<>();
         int startTripIndex = 0;
-        while (startTripIndex < filteredTripData.size()) {
-            TouchRecord touchOnRecord = filteredTripData.get(startTripIndex);
+        while (startTripIndex < processableTouchRecords.size()) {
+            TouchRecord touchOnRecord = processableTouchRecords.get(startTripIndex);
             if (touchOnRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_OFF)) {
                 unprocessableTrip.add(getUnprocessableTrip(touchOnRecord));
                 startTripIndex++;
-            } else if (touchOnRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_ON) && startTripIndex + 1 < filteredTripData.size()) {
-                TouchRecord touchOffRecord = filteredTripData.get(startTripIndex + 1);
+            } else if (touchOnRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_ON) && startTripIndex + 1 < processableTouchRecords.size()) {
+                TouchRecord touchOffRecord = processableTouchRecords.get(startTripIndex + 1);
                 if (touchOffRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_OFF)) {
                     String tripName = String.format("%s_TO_%s", touchOnRecord.getStopId(), touchOffRecord.getStopId());
                     BigDecimal cost;
@@ -181,7 +181,7 @@ public class TripsService {
                     result.add(getTripHasNoTouchOffRecord(touchOnRecord, touchOffRecord, maxCost));
                     startTripIndex = startTripIndex + 1;
                 }
-            } else if (touchOnRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_ON) && startTripIndex + 1 >= filteredTripData.size()) {
+            } else if (touchOnRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_ON) && startTripIndex + 1 >= processableTouchRecords.size()) {
                 Map<String, BigDecimal> busFees = busFeeService.filterKeys(touchOnRecord.getStopId());
                 BigDecimal maxCost = busFeeService.findHighestValue(busFees);
                 result.add(getTripLastTouchNoTouchOff(touchOnRecord, maxCost));
@@ -257,8 +257,7 @@ public class TripsService {
         try {
             Date startedDate = dateFormat.parse(startedString);
             Date finishedDate = dateFormat.parse(finishedString);
-            long durationSeconds = (finishedDate.getTime() - startedDate.getTime()) / 1000;
-            return durationSeconds;
+            return  (finishedDate.getTime() - startedDate.getTime()) / 1000;
         } catch (ParseException e) {
             return 0;
         }
