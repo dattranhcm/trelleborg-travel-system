@@ -26,19 +26,6 @@ public class TravelSystemController {
     @Autowired
     private FileProcessor fileProcessor;
 
-    @PostMapping("/upload")
-    public ResponseEntity<Object> uploadCSVFile(@RequestParam("file") MultipartFile file) {
-        if (file.isEmpty()) {
-            return new ResponseEntity<>(List.of(), HttpStatus.BAD_REQUEST);
-        }
-        try {
-            TripProcessResult result = tripsService.process(file);
-            return new ResponseEntity<>(result, HttpStatus.CREATED);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @GetMapping("/trips-data")
     @SneakyThrows
     public ResponseEntity<byte[]> generateTripsCSVFiles(@RequestParam("file") MultipartFile file) {
