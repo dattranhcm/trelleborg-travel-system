@@ -1,0 +1,15 @@
+ID, DateTimeUTC, TouchType, StopID, CompanyID, BusID, PAN
+1,16-05-2023 12:15:00, ON, StopA, Company1, Bus10, 1111
+8,16-05-2023 12:30:00, ON, StopB, Company3, Bus25, 5555
+3,16-05-2023 12:28:00, ON, StopB, Company2, Bus11, 2222
+7,16-05-2023 12:30:00, ON, StopA, Company3, Bus25, 4444
+9,16-05-2023 12:30:00, ON, StopA, Company3, Bus25, 6666
+11,,,,,,
+12,16-05-2023 12:30:00,, StopA, Company3, Bus25,
+13,
+14,16-05-2023 12:30:00, OFF, StopA, Company3, Bus25, 7777
+6,16-05-2023 12:55:00, OFF, StopA, Company3, Bus25, 3333
+4,16-05-2023 12:45:00, OFF, StopC, Company2, Bus11, 2222
+2,16-05-2023 12:25:00, OFF, StopB, Company1, Bus10, 1111
+5,16-05-2023 12:45:00, ON, StopB, Company1, Bus25, 3333
+10,16-05-2023 12:30:00, OFF, StopA, Company3, Bus25, 6666

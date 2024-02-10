@@ -1,67 +1,53 @@
 # Approach and Solution
-### Assumption
-````
-- Any record with touch OFF status without touch ON before will be unprocessable record
-- Any record has data cell value null/empty will be unprocessable record
-````
-### Solution
-````
-Pre-condition
- - Trip amount determined, in yml config format such as:
- {
-    "StopA_TO_StopB": 4.50,
-    "StopB_TO_StopC": 6.25,
-    "StopA_TO_StopC": 8.45
- }
- config service will load that config cost and do add more reversed pairs to make sure TripA -> TripB = TripB -> TripA
- we will have mapping like below:
-    "StopA_TO_StopB": 4.50
-    "StopB_TO_StopC": 6.25
-    "StopA_TO_StopC": 8.45
-    "StopB_TO_StopA": 4.50
-    "StopC_TO_StopB": 6.25
-    "StopC_TO_StopA": 8.45
-````
-````
-Code flow
-1. Read raw data from file
-2. Map each row to TouchRecord object
-3. Filter TouchRecord what can be continue to calculate, 
-and sort those record by starttime and PAN to get a sorted list in order startime and PAN
-4. Grouping that list, to easier working, every record belong to a PAN will be in the same list
-5. After step 4 & 5, we have a grouping of in ordered records for each PAN.
-	Purpose:
-	 - that order will make ON/OFF touch in time order, (touch ON should be before touch OFF)
-	 - make sure each PAN`s records just belong to one PAN
-6. Calculate bus fee for each PAN base on PAN`s records touch ON/OFF
-	Rule are:
-		1. A touchOnRecord should has touchOffRecord (next to touchOnRecord)
-		2. If next to touchOnRecord is not touchOffRecord, will be Incomplete record, and cost = maximum cost
-		3. If touchOnRecord has status OFF, that mean this is a touchOffRecord without touchOn, shoule be unprocessable trip
-		
-7. After having trips infomation, traverse this trips list to calculate summary infomation, which has the number of complete, incomplete and cancelled trips along with total charges, sorted and grouped by Date, CompanyId and BusID
-8. After have trips, unprocessable data, summary, generate 3 csv files
-````
-# Requisites
+Solution detail stored in:
+```/solution_description/Travel_System_Solution_Description.pdf```
+# System requisites
 ````
 - Java 11
 - Maven
 - OS: Window or Linux
 ````
+# Project structure
+````
+src
+|_main
+    |_java
+		|com.travel.system.trelleborg
+			|_common   					 --> common resources using in project code base
+			|_components				 --> spring components support services to do some businesses
+			|_controller   				 --> define restful controllers
+			|_dto						 --> define Data transfer objects
+			|_exceptions				 --> define exception return object and global exception handlers
+			|_service					 --> define business service
+			|TrelleborgApplication.java  --> main spring boot run file
+````
 # Getting Started
-mvn clean package
-
+In /trelleborg-travel-system
+run:
+    mvn clean package
+run:
+    mvn spring-boot:run
 # Curl
 ````
-curl --location --request GET 'http://localhost:8080/travel-system/api/trips-data'
+curl --location --request GET 'http://localhost:8080/travel-system/api/trips-data' \
+--form 'file=@"/path/to/file"'
 ````
-# Using postman to test
+# Test data
 ````
-Test data folder
-    `trelleborg\src\main\resources\csv_test_data`
-Call GET: travel-system/api/trips-data api
-    ![trips-data_postman.JPG](trips-data_postman.JPG)
-Choose 'Save response to file' result (multiple_csv_files zip file), then extract it, will be 3 files result
-![img.png](img.png)
+Stored in: src\main\resources\csv_test_data
+
+case 1: "happycase_enought_data_on_off_samebus.csv"
+    happy cases with 6 valid touch pair (3 touch on/ 3 touch off)
+
+case 2: "one_incompleted_and_one_unprocessable.csv"
+    8 touch record with 6 valid touch on/off (complete), 1 touch on without touch off (incompleted), 1 touch off without touch on (unprocessable)
+
+case 3: "complext_cases.csv"
+    10 touch record with:
+    3 empty/null fields, 1 no touch on (4 unprocessable)
+    3 completed, 2 incompleted, 1 cancelled (6 trips)
+ 
+case 4: "10_valid_touch_3_days.csv"
+    18 valid touch record in 3 days (9 complete)
 ````
 

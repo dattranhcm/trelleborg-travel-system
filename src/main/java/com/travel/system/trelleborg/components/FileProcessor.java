@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -20,7 +21,10 @@ public class FileProcessor {
         List<String[]> rawData = new ArrayList<>();
         BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
         String line;
-        String headerLine = br.readLine(); // Read the header line
+        String headerLine = br.readLine(); // Read header line
+        if(Objects.isNull(headerLine)) {
+            throw new RuntimeException("Invalid input csv file");
+        }
         String[] columnNames = headerLine.split(",");
         while ((line = br.readLine()) != null) {
             String[] values = line.split(",", -1);
