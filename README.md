@@ -1,13 +1,13 @@
-# Approach and Solution
+## Approach and Solution
 Solution detail stored in:
 ```/solution_description/Travel_System_Solution_Description.pdf```
-# System requisites
+## System requisites
 ````
 - Java 11
 - Maven
 - OS: Window or Linux
 ````
-# Project structure
+## Project structure
 ````
 src
 |_main
@@ -21,18 +21,20 @@ src
 			|_service					 --> define business service
 			|TrelleborgApplication.java  --> main spring boot run file
 ````
-# Getting Started
-In /trelleborg-travel-system
+## Run application
+Goto folder: /trelleborg-travel-system
+
 run:
     mvn clean package
+
 run:
     mvn spring-boot:run
-# Curl
+## Curl
 ````
 curl --location --request GET 'http://localhost:8080/travel-system/api/trips-data' \
 --form 'file=@"/path/to/file"'
 ````
-# Test data
+## Test data
 ````
 Stored in: src\main\resources\csv_test_data
 
