@@ -1,0 +1,9 @@
+ID, DateTimeUTC, TouchType, StopID, CompanyID, BusID, PAN
+1,08-01-2023 09:15:00, ON, StopA, Company1, Bus10, 1111
+2,08-01-2023 09:25:00, OFF, StopA, Company1, Bus12, 1111
+3,08-01-2023 09:25:01, ON, StopA, Company1, Bus10, 1111
+4,08-01-2023 09:26:01, OFF, StopA, Company2, Bus10, 1111
+5,08-01-2023 09:30:00, ON, StopA, Company1, Bus10, 2222
+6,08-01-2023 09:35:01, OFF, StopA, Company2, Bus12, 2222
+7,08-01-2023 09:40:00, ON, StopA, Company3, Bus20, 2222
+8,08-01-2023 09:45:01, OFF, StopA, Company4, Bus30, 2222

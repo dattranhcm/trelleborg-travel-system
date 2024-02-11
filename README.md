@@ -51,5 +51,8 @@ case 3: "complext_cases.csv"
  
 case 4: "10_valid_touch_3_days.csv"
     18 valid touch record in 3 days (9 complete)
+  
+case 5: "touch_data_difference_company_busId.csv"
+   touch data with valid pairs of ON/OFF but difference companyID/busId (no valid touch on off data)
 ````
 

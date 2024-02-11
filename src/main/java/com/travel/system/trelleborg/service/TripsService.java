@@ -161,7 +161,9 @@ public class TripsService {
                 startTripIndex++;
             } else if (touchOnRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_ON) && startTripIndex + 1 < processableTouchRecords.size()) {
                 TouchRecord touchOffRecord = processableTouchRecords.get(startTripIndex + 1);
-                if (touchOffRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_OFF)) {
+                if (touchOffRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_OFF)
+                        && touchOffRecord.getCompanyID().equalsIgnoreCase(touchOnRecord.getCompanyID())
+                        && touchOffRecord.getBusId().equalsIgnoreCase(touchOnRecord.getBusId())) {
                     String tripName = String.format("%s_TO_%s", touchOnRecord.getStopId(), touchOffRecord.getStopId());
                     BigDecimal cost;
                     String status;
@@ -174,6 +176,15 @@ public class TripsService {
                         status = Constants.COMPLETED_TRIP;
                     }
                     result.add(getProcessableTrip(touchOnRecord, touchOffRecord, cost, status));
+                    startTripIndex = startTripIndex + 2;
+                } else if (touchOffRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_OFF)
+                        && (!touchOffRecord.getCompanyID().equalsIgnoreCase(touchOnRecord.getCompanyID())
+                            || !touchOffRecord.getBusId().equalsIgnoreCase(touchOnRecord.getBusId()))) {
+                    Map<String, BigDecimal> busFees = busFeeService.filterKeys(touchOnRecord.getStopId());
+                    BigDecimal maxCost = busFeeService.findHighestValue(busFees);
+                    result.add(getTripHasNoTouchOffRecord(touchOnRecord, touchOffRecord, maxCost));
+
+                    unprocessableTrip.add(getUnprocessableTrip(touchOffRecord));
                     startTripIndex = startTripIndex + 2;
                 } else if (touchOffRecord.getTouchType().equalsIgnoreCase(Constants.TOUCH_ON)) {
                     Map<String, BigDecimal> busFees = busFeeService.filterKeys(touchOnRecord.getStopId());
